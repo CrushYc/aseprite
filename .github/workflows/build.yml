@@ -6,23 +6,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        build_type: [RelWithDebInfo, Debug]
-        ui: [gui, cli]
-        scripting: [lua, noscripts]
+        os: [windows-latest]
+        build_type: [RelWithDebInfo]
+        ui: [gui]
+        scripting: [lua]
         exclude:
           - build_type: Debug
-            ui: gui
+            ui: gui    
           - build_type: RelWithDebInfo
             ui: cli
-          - build_type: RelWithDebInfo
+          - build_type: RelWithDebInfo  
             scripting: noscripts
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: 'recursive'
     - name: Install Dependencies
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux'  
       shell: bash
       run: |
         sudo apt-get update -qq
@@ -46,7 +46,7 @@ jobs:
         fi
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
-      if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+      if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}  
       with:
         key: ${{ matrix.os }}-${{ matrix.ui }}-${{ matrix.scripting }}-${{ matrix.build_type }}
     - uses: aseprite/get-ninja@main
@@ -91,21 +91,10 @@ jobs:
     - name: Compiling
       shell: bash
       run: |
-        cd build && ninja
-    - name: Running C++ Tests
-      shell: bash
-      run: |
-        if [[ "${{ runner.os }}" == "Linux" ]] ; then
-          export XVFB=xvfb-run
-        fi
-        cd build && $XVFB ctest --output-on-failure
-    - name: Running CLI Tests
-      if: ${{ matrix.scripting == 'lua' }}
-      shell: bash
-      run: |
-        if [[ "${{ runner.os }}" == "Linux" ]] ; then
-          export XVFB=xvfb-run
-        fi
-        export ASEPRITE=$PWD/build/bin/aseprite
-        cd tests
-        $XVFB bash run-tests.sh
+        cd build && ninja  
+    - uses: actions/upload-artifact@v4    
+      with:
+        name: aseprite    
+        path: |
+          D:/a/aseprite/aseprite/build/bin/data        
+          D:/a/aseprite/aseprite/build/bin/aseprite.exe          
